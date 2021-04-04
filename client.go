@@ -69,7 +69,7 @@ type Status struct {
 	Data        json.RawMessage `json:"data,omitempty"`
 }
 type Id struct {
-	Id string `json:"id,int"`
+	Id int `json:"id"`
 }
 
 func (s Status) Error() string {

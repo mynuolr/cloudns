@@ -103,7 +103,7 @@ func (p *Provider) AppendRecords(ctx context.Context, zone string, records []lib
 		if err = json.Unmarshal(status.Data, &id); err != nil {
 			return nil, err
 		}
-		r.ID = id.Id
+		r.ID = strconv.Itoa(id.Id)
 		r.TTL = time.Duration(ttl) * time.Second
 		rls = append(rls, r)
 	}
