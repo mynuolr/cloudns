@@ -21,7 +21,7 @@ func (p *Provider) setAuthQuery(query url.Values) error {
 		return errors.New("missing auth password")
 	}
 	query.Set("auth-password", p.AuthPassword)
-	if strings.ToLower(p.Sub)=="true" {
+	if strings.ToLower(p.Sub) == "true" {
 		query.Set("sub-auth-id", p.AuthId)
 	} else {
 		query.Set("auth-id", p.AuthId)
@@ -29,6 +29,7 @@ func (p *Provider) setAuthQuery(query url.Values) error {
 	return nil
 }
 func (p *Provider) getResponse(ctx context.Context, api string, query url.Values) (*http.Response, error) {
+	fmt.Println(fmt.Sprintf("%s%s?%s", DnsApi, api, query.Encode()))
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
@@ -48,13 +49,18 @@ func Unmarshal(rc io.ReadCloser, v interface{}) error {
 	if err != nil {
 		return err
 	}
-	status := checkStatus(data)
-	if status != nil {
+	err=json.Unmarshal(data, v)
+	if err != nil {
+		status,err2 := checkStatus(data)
+		if err2!=nil {
+			return err2
+		}
 		if status.IsError() {
 			return status
 		}
+
 	}
-	return json.Unmarshal(data, v)
+	return err
 }
 
 type Status struct {
@@ -72,12 +78,15 @@ func (s Status) Error() string {
 func (s Status) IsError() bool {
 	return s.Status != "Success"
 }
-func checkStatus(data []byte) *Status {
+func checkStatus(data []byte) (*Status,error) {
 	var s Status
-	if json.Unmarshal(data, &s) != nil {
-		return nil
+	if err:=json.Unmarshal(data, &s);err != nil {
+		return nil,err
 	}
-	return &s
+	if s.Status == "" {
+		return nil,errors.New("not status data")
+	}
+	return &s,nil
 }
 
 type Record struct {
@@ -87,5 +96,5 @@ type Record struct {
 	Record   string        `json:"record"`
 	Failover string        `json:"failover"`
 	Ttl      time.Duration `json:"ttl,string"`
-	Status   string        `json:"status"`
+	Status   int           `json:"status"`
 }

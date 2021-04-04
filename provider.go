@@ -87,9 +87,12 @@ func (p *Provider) AppendRecords(ctx context.Context, zone string, records []lib
 		if err != nil {
 			return nil, err
 		}
-		status := checkStatus(data)
+		status,err := checkStatus(data)
+		if err!=nil {
+			return nil, err
+		}
 		if status.IsError() {
-			return nil, status
+			return nil,status
 		}
 		var id Id
 		if err = json.Unmarshal(status.Data, &id); err != nil {
@@ -125,9 +128,12 @@ func (p *Provider) SetRecords(ctx context.Context, zone string, records []libdns
 		if err != nil {
 			return nil, err
 		}
-		status := checkStatus(data)
+		status,err := checkStatus(data)
+		if err!=nil {
+			return nil, err
+		}
 		if status.IsError() {
-			return nil, status
+			return nil,status
 		}
 	}
 	return records, nil
@@ -153,9 +159,12 @@ func (p *Provider) DeleteRecords(ctx context.Context, zone string, records []lib
 		if err != nil {
 			return nil, err
 		}
-		status := checkStatus(data)
+		status,err := checkStatus(data)
+		if err!=nil {
+			return nil, err
+		}
 		if status.IsError() {
-			return nil, status
+			return nil,status
 		}
 	}
 	return records, nil
