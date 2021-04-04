@@ -80,7 +80,7 @@ func (p *Provider) AppendRecords(ctx context.Context, zone string, records []lib
 	var rls []libdns.Record
 	for _, r := range records {
 		param.Set("record-type", r.Type)
-		param.Set("host", strings.TrimSuffix(r.Name, "."+zone))
+		param.Set("host", libdns.RelativeName(r.Name, zone))
 		param.Set("record", r.Value)
 		ttl := selectTTl(r.TTL)
 		param.Set("ttl", strconv.Itoa(ttl))
@@ -124,7 +124,7 @@ func (p *Provider) SetRecords(ctx context.Context, zone string, records []libdns
 	}
 	for _, r := range records {
 		param.Set("record-id", r.ID)
-		param.Set("host", strings.TrimSuffix(r.Name, "."+zone))
+		param.Set("host", libdns.RelativeName(r.Name, zone))
 		param.Set("record", r.Value)
 		param.Set("ttl", strconv.Itoa(selectTTl(r.TTL)))
 		res, err := p.getResponse(ctx, "dns/mod-record.json", param)
