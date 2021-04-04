@@ -1,6 +1,7 @@
 **DEVELOPER INSTRUCTIONS:**
 
-This repo is a template for developers to use when creating new [libdns](https://github.com/libdns/libdns) provider implementations.
+This repo is a template for developers to use when creating new [libdns](https://github.com/libdns/libdns) provider
+implementations.
 
 Be sure to update:
 
@@ -21,6 +22,7 @@ Remove this section from the readme before publishing.
 
 [![Go Reference](https://pkg.go.dev/badge/test.svg)](https://pkg.go.dev/github.com/libdns/TODO:PROVIDER_NAME)
 
-This package implements the [libdns interfaces](https://github.com/libdns/libdns) for \<PROVIDER\>, allowing you to manage DNS records.
+This package implements the [libdns interfaces](https://github.com/libdns/libdns) for \<PROVIDER\>, allowing you to
+manage DNS records.
 
 TODO: Show how to configure and use. Explain any caveats.
