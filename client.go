@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -20,7 +21,7 @@ func (p *Provider) setAuthQuery(query url.Values) error {
 		return errors.New("missing auth password")
 	}
 	query.Set("auth-password", p.AuthPassword)
-	if p.Sub {
+	if strings.ToLower(p.Sub)=="true" {
 		query.Set("sub-auth-id", p.AuthId)
 	} else {
 		query.Set("auth-id", p.AuthId)

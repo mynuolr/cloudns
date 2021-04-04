@@ -26,7 +26,7 @@ type Provider struct {
 	// TODO: put config fields here (with snake_case json
 	// struct tags on exported fields), for example:
 	AuthId       string `json:"auth_id"`
-	Sub          bool   `json:"sub,omitempty"`
+	Sub          string `json:"sub,omitempty"`
 	AuthPassword string `json:"auth_password"`
 	lock         sync.Mutex
 }
