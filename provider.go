@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/libdns/libdns"
@@ -36,6 +37,7 @@ func (p *Provider) GetRecords(ctx context.Context, zone string) ([]libdns.Record
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	param := url.Values{}
+	zone = strings.Trim(zone, ".")
 	param.Set("domain-name", zone)
 	err := p.setAuthQuery(param)
 	if err != nil {
@@ -68,6 +70,7 @@ func (p *Provider) AppendRecords(ctx context.Context, zone string, records []lib
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	param := url.Values{}
+	zone = strings.Trim(zone, ".")
 	param.Set("domain-name", zone)
 	err := p.setAuthQuery(param)
 	if err != nil {
@@ -76,7 +79,7 @@ func (p *Provider) AppendRecords(ctx context.Context, zone string, records []lib
 	var rls []libdns.Record
 	for _, r := range records {
 		param.Set("record-type", r.Type)
-		param.Set("host", r.Name)
+		param.Set("host", strings.TrimSuffix(r.Name, "."+zone))
 		param.Set("record", r.Value)
 		param.Set("ttl", strconv.FormatInt(int64(r.TTL), 10))
 		res, err := p.getResponse(ctx, "dns/add-record.json", param)
@@ -110,6 +113,7 @@ func (p *Provider) SetRecords(ctx context.Context, zone string, records []libdns
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	param := url.Values{}
+	zone = strings.Trim(zone, ".")
 	param.Set("domain-name", zone)
 	err := p.setAuthQuery(param)
 	if err != nil {
@@ -117,7 +121,7 @@ func (p *Provider) SetRecords(ctx context.Context, zone string, records []libdns
 	}
 	for _, r := range records {
 		param.Set("record-id", r.ID)
-		param.Set("host", r.Name)
+		param.Set("host", strings.TrimSuffix(r.Name, "."+zone))
 		param.Set("record", r.Value)
 		param.Set("ttl", strconv.FormatInt(int64(r.TTL), 10))
 		res, err := p.getResponse(ctx, "dns/mod-record.json", param)
@@ -144,6 +148,7 @@ func (p *Provider) DeleteRecords(ctx context.Context, zone string, records []lib
 	p.lock.Lock()
 	defer p.lock.Unlock()
 	param := url.Values{}
+	zone = strings.Trim(zone, ".")
 	param.Set("domain-name", zone)
 	err := p.setAuthQuery(param)
 	if err != nil {
