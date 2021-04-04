@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/libdns/libdns"
 )
@@ -59,7 +60,7 @@ func (p *Provider) GetRecords(ctx context.Context, zone string) ([]libdns.Record
 			Type:  v.Type,
 			Name:  v.Host,
 			Value: v.Record,
-			TTL:   v.Ttl,
+			TTL:   time.Duration(v.Ttl) * time.Second,
 		})
 	}
 	return records, nil
@@ -81,7 +82,8 @@ func (p *Provider) AppendRecords(ctx context.Context, zone string, records []lib
 		param.Set("record-type", r.Type)
 		param.Set("host", strings.TrimSuffix(r.Name, "."+zone))
 		param.Set("record", r.Value)
-		param.Set("ttl", strconv.FormatInt(int64(r.TTL), 10))
+		ttl := selectTTl(r.TTL)
+		param.Set("ttl", strconv.Itoa(ttl))
 		res, err := p.getResponse(ctx, "dns/add-record.json", param)
 		if err != nil {
 			return nil, err
@@ -90,18 +92,19 @@ func (p *Provider) AppendRecords(ctx context.Context, zone string, records []lib
 		if err != nil {
 			return nil, err
 		}
-		status,err := checkStatus(data)
-		if err!=nil {
+		status, err := checkStatus(data)
+		if err != nil {
 			return nil, err
 		}
 		if status.IsError() {
-			return nil,status
+			return nil, status
 		}
 		var id Id
 		if err = json.Unmarshal(status.Data, &id); err != nil {
 			return nil, err
 		}
 		r.ID = id.Id
+		r.TTL = time.Duration(ttl) * time.Second
 		rls = append(rls, r)
 	}
 	return rls, nil
@@ -123,7 +126,7 @@ func (p *Provider) SetRecords(ctx context.Context, zone string, records []libdns
 		param.Set("record-id", r.ID)
 		param.Set("host", strings.TrimSuffix(r.Name, "."+zone))
 		param.Set("record", r.Value)
-		param.Set("ttl", strconv.FormatInt(int64(r.TTL), 10))
+		param.Set("ttl", strconv.Itoa(selectTTl(r.TTL)))
 		res, err := p.getResponse(ctx, "dns/mod-record.json", param)
 		if err != nil {
 			return nil, err
@@ -132,12 +135,12 @@ func (p *Provider) SetRecords(ctx context.Context, zone string, records []libdns
 		if err != nil {
 			return nil, err
 		}
-		status,err := checkStatus(data)
-		if err!=nil {
+		status, err := checkStatus(data)
+		if err != nil {
 			return nil, err
 		}
 		if status.IsError() {
-			return nil,status
+			return nil, status
 		}
 	}
 	return records, nil
@@ -164,12 +167,12 @@ func (p *Provider) DeleteRecords(ctx context.Context, zone string, records []lib
 		if err != nil {
 			return nil, err
 		}
-		status,err := checkStatus(data)
-		if err!=nil {
+		status, err := checkStatus(data)
+		if err != nil {
 			return nil, err
 		}
 		if status.IsError() {
-			return nil,status
+			return nil, status
 		}
 	}
 	return records, nil

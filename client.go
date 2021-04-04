@@ -49,10 +49,10 @@ func Unmarshal(rc io.ReadCloser, v interface{}) error {
 	if err != nil {
 		return err
 	}
-	err=json.Unmarshal(data, v)
+	err = json.Unmarshal(data, v)
 	if err != nil {
-		status,err2 := checkStatus(data)
-		if err2!=nil {
+		status, err2 := checkStatus(data)
+		if err2 != nil {
 			return err2
 		}
 		if status.IsError() {
@@ -78,23 +78,33 @@ func (s Status) Error() string {
 func (s Status) IsError() bool {
 	return s.Status != "Success"
 }
-func checkStatus(data []byte) (*Status,error) {
+func checkStatus(data []byte) (*Status, error) {
 	var s Status
-	if err:=json.Unmarshal(data, &s);err != nil {
-		return nil,err
+	if err := json.Unmarshal(data, &s); err != nil {
+		return nil, err
 	}
 	if s.Status == "" {
-		return nil,errors.New("not status data")
+		return nil, errors.New("not status data")
 	}
-	return &s,nil
+	return &s, nil
 }
 
 type Record struct {
-	Id       string        `json:"id"`
-	Type     string        `json:"type"`
-	Host     string        `json:"host"`
-	Record   string        `json:"record"`
-	Failover string        `json:"failover"`
-	Ttl      time.Duration `json:"ttl,string"`
-	Status   int           `json:"status"`
+	Id       string `json:"id"`
+	Type     string `json:"type"`
+	Host     string `json:"host"`
+	Record   string `json:"record"`
+	Failover string `json:"failover"`
+	Ttl      int    `json:"ttl,string"`
+	Status   int    `json:"status"`
+}
+
+func selectTTl(t time.Duration) int {
+	s := int(t.Seconds())
+	for _, v := range AvailableTTL {
+		if s >= v {
+			return v
+		}
+	}
+	return 60
 }
